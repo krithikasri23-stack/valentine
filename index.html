@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine</title>
+
+<!-- DANCING SCRIPT FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Dancing Script', cursive !important;
+    overflow: hidden;
+}
+
+/* ---------- SCREEN 1 ---------- */
+#screen1 {
+    height: 100vh;
+    background: linear-gradient(135deg, #ffd6e0, #ffeef3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    width: 360px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+h1 {
+    color: #e63946;
+    margin-bottom: 10px;
+    font-size: 42px;
+}
+
+h2 {
+    font-size: 28px;
+}
+
+.buttons {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+button {
+    padding: 12px 26px;
+    font-size: 20px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+#yesBtn {
+    background: #ff4d6d;
+    color: white;
+}
+
+#noBtn {
+    background: #adb5bd;
+    color: white;
+}
+
+/* ---------- SCREEN 2 ---------- */
+#screen2 {
+    display: none;
+    background: black;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
+/* Fireworks canvas */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* Text on top */
+#finalText {
+    position: fixed;
+    bottom: 26%;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    display: none;
+    z-index: 3;
+}
+
+/* Teddies on top */
+#teddies {
+    position: fixed;
+    bottom: 10%;
+    width: 100%;
+    text-align: center;
+    font-size: 80px;
+    display: none;
+    z-index: 3;
+    animation: hug 2s infinite alternate;
+}
+
+@keyframes hug {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- MUSIC -->
+<audio id="bgMusic" loop>
+    <source src="thousand-years.mp3" type="audio/mpeg">
+</audio>
+
+<!-- SCREEN 1 -->
+<div id="screen1">
+    <div class="card">
+        <h1>❤️ Venkat ❤️</h1>
+        <h2>Will you be my Valentine?</h2>
+
+        <div class="buttons">
+            <button id="yesBtn">Yes 💖</button>
+            <button id="noBtn">No 😜</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 2 -->
+<div id="screen2">
+    <canvas id="fireworks"></canvas>
+    <div id="finalText">Thank you ❤️ I love you</div>
+    <div id="teddies">🧸🤍🧸</div>
+</div>
+
+<script>
+/* ---------- BUTTON LOGIC ---------- */
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const screen1 = document.getElementById("screen1");
+const screen2 = document.getElementById("screen2");
+const finalText = document.getElementById("finalText");
+const teddies = document.getElementById("teddies");
+const music = document.getElementById("bgMusic");
+
+const noTexts = [
+    "Nice try 😏",
+    "Almost yes 😉",
+    "Don't lie 😜",
+    "Say yes 🥺",
+    "Hehe nope 😆"
+];
+
+let noCount = 0;
+
+noBtn.onmouseover = () => {
+    const x = Math.random() * 120 - 60;
+    const y = Math.random() * 40 - 20;
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+    noBtn.innerText = noTexts[noCount % noTexts.length];
+    noCount++;
+};
+
+yesBtn.onclick = () => {
+    screen1.style.display = "none";
+    screen2.style.display = "block";
+
+    music.volume = 0;
+    music.play();
+
+    let vol = 0;
+    const fadeIn = setInterval(() => {
+        if (vol < 0.7) {
+            vol += 0.05;
+            music.volume = vol;
+        } else {
+            clearInterval(fadeIn);
+        }
+    }, 200);
+
+    startFireworks();
+
+    setTimeout(() => {
+        finalText.style.display = "block";
+        teddies.style.display = "block";
+    }, 3000);
+};
+
+/* ---------- FIREWORKS ---------- */
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function explode(x, y) {
+    const colors = [
+        "255,99,132",
+        "255,205,86",
+        "75,192,192",
+        "54,162,235",
+        "153,102,255"
+    ];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    for (let i = 0; i < 160; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            alpha: 1,
+            size: Math.random() * 3 + 1,
+            color
+        });
+    }
+}
+
+function startFireworks() {
+    setInterval(() => {
+        explode(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height * 0.6
+        );
+    }, 450);
+}
+
+function animate() {
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.01;
+
+        ctx.fillStyle = `rgba(${p.color}, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (p.alpha <= 0) particles.splice(i, 1);
+    });
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html>
